@@ -1,0 +1,201 @@
+<project xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xmlns="http://maven.apache.org/POM/4.0.0"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <groupId>com.example</groupId>
+    <modelVersion>4.0.0</modelVersion>
+    <artifactId>crawler.usage</artifactId>
+    <version>1.0-SNAPSHOT</version>
+    <properties>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <proguard.version>7.2.0</proguard.version>
+    </properties>
+    <dependencies>
+        <dependency>
+            <groupId>us.codecraft</groupId>
+            <artifactId>webmagic-core</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <dependency>
+            <groupId>us.codecraft</groupId>
+            <artifactId>webmagic-extension</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+        <!-- SLF4J API -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>1.7.32</version>
+        </dependency>
+        <!-- Log4j2 SLF4J Implementation -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-slf4j-impl</artifactId>
+            <version>2.14.1</version>
+        </dependency>
+        <!-- Log4j2 Core -->
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.14.1</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Maven编译插件 -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.1</version>
+                <configuration>
+                    <source>11</source>
+                    <target>11</target>
+                </configuration>
+            </plugin>
+            <!-- Maven Shade插件，用于创建包含所有依赖的可执行JAR -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-shade-plugin</artifactId>
+                <version>3.2.4</version>
+                <executions>
+                    <execution>
+                        <id>shade-jar</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>shade</goal>
+                        </goals>
+                        <configuration>
+                            <transformers>
+                                <transformer
+                                        implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer">
+                                    <mainClass>p.SearchPage</mainClass>
+                                </transformer>
+                            </transformers>
+                            <finalName>program-prod</finalName>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <!-- ProGuard代码混淆插件 -->
+            <plugin>
+                <groupId>com.github.wvengen</groupId>
+                <artifactId>proguard-maven-plugin</artifactId>
+                <version>2.7.0</version>
+                <executions>
+                    <execution>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>proguard</goal>
+                        </goals>
+                    </execution>
+                </executions>
+                <configuration>
+                    <proguardVersion>${proguard.version}</proguardVersion>
+                    <injar>program-prod.jar</injar>  <!-- 建议加上 .jar 扩展名 -->
+                    <outjar>program.jar</outjar>
+                    <obfuscate>true</obfuscate>
+                    <options>
+                        <option>-allowaccessmodification</option>
+                        <option>-keepdirectories</option>
+                        <option>-dontwarn</option>
+
+                        <!-- 保护主类的 main 方法 -->
+                        <option>-keep class p.SearchPage {
+                            public static void main(java.lang.String[]);
+                            }</option>
+
+                        <!-- 如果 p.b 包确实需要保护，则保留此规则 -->
+                        <option>-keep class p.b.** { *; }</option>
+
+                        <!-- 保护工具类 -->
+                        <option>-keep class org.tools.** { *; }</option>
+
+                        <!-- 保护 WebMagic 框架 -->
+                        <option>-keep class us.codecraft.webmagic.** { *; }</option>
+
+                        <!-- 保护所有 main 方法 -->
+                        <option>-keepclassmembers class * {
+                            public static void main(java.lang.String[]);
+                            }</option>
+
+                        <!-- 保持 GUI 组件 -->
+                        <option>-keep class javax.swing.** { *; }</option>
+                        <option>-keep class java.awt.** { *; }</option>
+                        <option>-keep class javax.swing.event.** { *; }</option>
+                        <option>-keep class javax.swing.table.** { *; }</option>
+                        <option>-keep class javax.swing.text.** { *; }</option>
+                        <option>-keep class javax.swing.tree.** { *; }</option>
+                        <option>-keep class javax.accessibility.** { *; }</option>
+
+                        <!-- 保持枚举类 -->
+                        <option>-keepclassmembers enum * {
+                            public static **[] values();
+                            public static ** valueOf(java.lang.String);
+                            }</option>
+
+                        <!-- 保持序列化相关类 -->
+                        <option>-keepclassmembers class * implements java.io.Serializable {
+                            static final long serialVersionUID;
+                            private static final java.io.ObjectStreamField[] serialPersistentFields;
+                            private void writeObject(java.io.ObjectOutputStream);
+                            private void readObject(java.io.ObjectInputStream);
+                            java.lang.Object writeReplace();
+                            java.lang.Object readResolve();
+                            }</option>
+
+                        <!-- 保持内部类和匿名类 -->
+                        <option>-keepattributes InnerClasses</option>
+                        <option>-keepattributes EnclosingMethod</option>
+
+                        <!-- 保持注解 -->
+                        <option>-keepattributes *Annotation*</option>
+
+                        <!-- 保持行号信息，便于调试 -->
+                        <option>-keepattributes SourceFile,LineNumberTable</option>
+
+                        <!-- 保持泛型信息 -->
+                        <option>-keepattributes Signature</option>
+
+                        <!-- 保持异常信息 -->
+                        <option>-keepattributes Exceptions</option>
+                    </options>
+                    <libs>
+                        <lib>${java.home}/jmods/java.base.jmod</lib>
+                    </libs>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>com.guardsquare</groupId>
+                        <artifactId>proguard-base</artifactId>
+                        <version>${proguard.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+            <!-- 添加到<plugins>部分 -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>exec-maven-plugin</artifactId>
+                <version>3.1.0</version>
+                <executions>
+                    <!-- 构建后执行后处理脚本 -->
+                    <execution>
+                        <id>post-build-script</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>cmd</executable>
+                            <arguments>
+                                <argument>/c</argument>
+                                <argument>${project.basedir}/package.bat</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
