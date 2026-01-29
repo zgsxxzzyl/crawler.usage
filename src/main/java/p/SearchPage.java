@@ -292,7 +292,7 @@ public class SearchPage extends JFrame {
 
         gbc.gridx = 0;
         gbc.gridy = 2;
-        gbc.insets = new Insets(20, 10, 10, 10);
+        gbc.insets = new Insets(0, 10, 0, 10);
         gbc.fill = GridBagConstraints.NONE;
         gbc.weightx = 0;
         mainPanel.add(buttonPanel, gbc);
