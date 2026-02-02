@@ -22,6 +22,9 @@ public class Good {
                 "</table>", url, title, price, number);
     }
 
+    public Good() {
+    }
+
     public Good(String title, String price, String url, String number) {
         this.title = title;
         this.price = price;

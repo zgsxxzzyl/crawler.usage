@@ -3,14 +3,17 @@ package p.c.pojo;
 import java.util.List;
 
 public class Series {
-    public Series(List<Long> data, String name, String stack, String type) {
+    public Series() {
+    }
+
+    public Series(List<String> data, String name, String stack, String type) {
         this.data = data;
         this.name = name;
         this.stack = stack;
         this.type = type;
     }
 
-    private List<Long> data;
+    private List<String> data;
 
     private String name;
 
@@ -18,11 +21,11 @@ public class Series {
 
     private String type;
 
-    public List<Long> getData() {
+    public List<String> getData() {
         return data;
     }
 
-    public void setData(List<Long> data) {
+    public void setData(List<String> data) {
         this.data = data;
     }
 
